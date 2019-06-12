@@ -3,7 +3,6 @@ if(!exists("apirequest", mode="function")) source("./case_study/r/R_Client.R")
 
 perform_lookup = function(x, y) {
   input = data.frame(x = x, y = y)
-  apirequest(input, 1, "api-test2D")
   response = apirequest(input, 1, "api-test2D")
   
   return(data.frame(x = x, y = y, result = response))
