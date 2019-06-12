@@ -1,7 +1,7 @@
 if(!exists("apirequest", mode="function")) source("./case_study/r/R_Client.R")
 
 
-perform_lookup_and_append_to_df = function(x, y) {
+perform_lookup = function(x, y) {
   input = data.frame(x = x, y = y)
   apirequest(input, 1, "api-test2D")
   response = apirequest(input, 1, "api-test2D")
