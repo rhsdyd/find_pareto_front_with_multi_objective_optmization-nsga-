@@ -21,3 +21,12 @@ result <- regr_part(df.learn, df)
 
 # compare original data and prediction
 compare_prediction(df, result)
+
+# use "furthest neighbour approach for sampling"
+for(i in seq(from=1, to=10, by=1)){
+  new_obs <- fetch_by_distance(df)
+  df <- rbind(df, new_obs)
+  
+  points3D(df$x, df$y, df$output, colvar=df$output,
+           theta = 70, phi = 40, cex = 1, pch=19, bty="b2")
+}
