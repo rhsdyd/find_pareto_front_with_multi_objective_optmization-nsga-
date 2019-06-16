@@ -1,8 +1,9 @@
 library(keras)
+source("./case_study/preprocessing/preprocessing.R")
 
 data = as.data.frame(lapply(df_function_2, normalize))
 
-n_samples = floor(0.75 * nrow(data))
+n_samples = floor(0.8 * nrow(data))
 sequences = seq_len(nrow(data))
 sample_ids = sample(sequences, size=n_samples)
 
@@ -12,13 +13,14 @@ test = data[-sample_ids, ]
 build_model <- function() {
   model <- keras_model_sequential() %>%
     layer_dense(units = 64, activation = "relu", input_shape = dim(train)[2] - 1) %>%
-    layer_dropout(rate=0.4) %>%
+    layer_dense(units = 64, activation = "relu") %>%
     layer_dense(units = 32, activation = "relu") %>%
+    layer_dense(units = 16, activation = "relu") %>%
     layer_dense(units = 1)
   
   model %>% compile(
     loss = "mse",
-    optimizer = optimizer_rmsprop(),
+    optimizer = 'adam',
     metrics = list("mean_absolute_error")
   )
   
@@ -33,11 +35,14 @@ history <- model %>% fit(
   y = data.matrix(train$result), # labels
   validation_data = list(data.matrix(test[,1:3]), data.matrix(test$result)),
   epochs = 50,
-  validation_split = 0.2,
+  batch_size=20,
   shuffle=T,
   verbose=2
 )
 
-predicted = model %>% predict(data.matrix(test[,1:3]))
-plot(test$result, predicted[,1], xlim = c(0, 1), ylim = c(0, 1))
+predicted_test = model %>% predict(data.matrix(test[,1:3]))
+plot(test$result, predicted_test[,1], xlim = c(0, 1), ylim = c(0, 1))
 
+idx = 1:nrow(test)
+plot(idx, test$result, type = "l")
+points(idx, predicted_test, col="red", type = "l")
