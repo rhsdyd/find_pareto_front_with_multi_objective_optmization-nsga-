@@ -1,7 +1,9 @@
-tasks = list(makeRegrTask(id = 'function 1', data = df_normalized, target = 'result'))
+require(mlr)
+
+tasks = list(makeRegrTask(id = 'Test 3D - 2', data = data, target = 'result'))
 
 learners = list(
-  makeLearner('regr.ksvm'), 
+  makeLearner('regr.ksvm'),
   makeLearner('regr.randomForest'),
   makeLearner('regr.gausspr'),
   makeLearner('regr.glm'),
