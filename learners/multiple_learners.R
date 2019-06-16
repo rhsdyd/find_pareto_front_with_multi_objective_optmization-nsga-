@@ -15,6 +15,17 @@ learners = list(
   makeLearner('regr.svm')
   )
 
-rdesc = makeResampleDesc("CV", iters = 20)
+# Cross-Validation
+cv = makeResampleDesc('CV', iters=20)
+bmr_cv = benchmark(learners, tasks, cv)
+plotBMRBoxplots(bmr_cv)
 
-bmr = benchmark(learners, tasks, rdesc)
+# Leave-one-out
+loo = makeResampleDesc('LOO')
+bmr_loo = benchmark(learners, tasks, loo)
+plotBMRBoxplots(bmr_loo)
+
+# Bootstrap
+bootstrap = makeResampleDesc('Bootstrap', iters=20)
+bmr_bootstrap = benchmark(learners, tasks, bootstrap)
+plotBMRBoxplots(bmr_bootstrap)
