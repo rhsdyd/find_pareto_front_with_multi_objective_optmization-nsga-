@@ -1,4 +1,5 @@
 source("./case_study/utils/data_processing.R")
+source("./case_study/")
 
 grid_sequence = seq(-5, 5, 0.2)
 grid = expand.grid(x = grid_sequence, y = grid_sequence, z = grid_sequence)
@@ -14,20 +15,15 @@ rnorm_point = function (value) {
   rnorm(1, value, 0.1)
 }
 
-findMinimum = function () {
-  return(TRUE)
+isFindMaximum= function () {
+  return(FALSE)
 }
 
 for(i in 1:10) {
   model = train_model(df_funtion_2)
   prediction_result = data.frame(grid_normalized, result = model %>% predict(data.matrix(grid_normalized)))
   
-  if(findMinimum()) {
-    ordered_prediction_result = prediction_result[order(prediction_result$result),]
-  }
-  else {
-    ordered_prediction_result = prediction_result[order(prediction_result$result, decreasing = TRUE),]
-  }
+  ordered_prediction_result = prediction_result[order(prediction_result$result, decreasing = isFindMaximum()),]
   
   denormalized_prediction_result = as.data.frame(Map(denormalize, ordered_prediction_result[1:3], minvec, maxvec))
   best_point = denormalized_prediction_result[1,]
