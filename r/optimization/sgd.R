@@ -1,3 +1,5 @@
+source("./case_study/utils/data_processing.R")
+
 grid_sequence = seq(-5, 5, 0.2)
 grid = expand.grid(x = grid_sequence, y = grid_sequence, z = grid_sequence)
 grid_normalized = as.data.frame(lapply(grid, normalize))
