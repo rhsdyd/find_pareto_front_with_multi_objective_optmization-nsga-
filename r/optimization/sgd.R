@@ -4,10 +4,10 @@ source("./case_study/learners/keras.R")
 span_grid = function () {
   grid_sequence = seq(-5, 5, 0.2)
   grid = expand.grid(x = grid_sequence, y = grid_sequence, z = grid_sequence)
-  grid_normalized = as.data.frame(lapply(grid, normalize))
   
-  minvec = sapply(grid_normalized, min)
-  maxvec = sapply(grid_normalized, max)
+  grid_normalized<<- as.data.frame(lapply(grid, normalize))
+  minvec<<- sapply(grid_normalized, min)
+  maxvec<<- sapply(grid_normalized, max)
 }
 
 if(!exists("grid_normalized")) {
