@@ -30,15 +30,14 @@ for(i in 1:10) {
   prediction_result = data.frame(grid_normalized, result = model %>% predict(data.matrix(grid_normalized)))
   
   ordered_prediction_result = prediction_result[order(prediction_result$result, decreasing = isFindMaximum()),]
-  
   denormalized_prediction_result = as.data.frame(Map(denormalize, ordered_prediction_result[1:3], minvec, maxvec))
-  best_point = denormalized_prediction_result[1,]
   
+  best_point = denormalized_prediction_result[1,]
   best_point_rnorm = apply(best_point, 2, rnorm_point)
   
   new_data_point = perform_lookup(best_point_rnorm[1], best_point_rnorm[2], best_point_rnorm[3], function_number = 2)
   df_function_2 = rbind(df_function_2, new_data_point)
-  
   new_data_points = rbind(new_data_points, new_data_point)
+  
   print(new_data_point)
 }
