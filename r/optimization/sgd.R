@@ -19,7 +19,7 @@ findMinimum = function () {
 }
 
 for(i in 1:10) {
-  model = train_model()
+  model = train_model(df_funtion_2)
   prediction_result = data.frame(grid_normalized, result = model %>% predict(data.matrix(grid_normalized)))
   
   if(findMinimum()) {
