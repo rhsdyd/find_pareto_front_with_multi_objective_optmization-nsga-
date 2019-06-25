@@ -4,3 +4,7 @@ normalize <- function(x) {
 
 # df = load_data_all(1)
 # df_normalized = as.data.frame(lapply(df_function_1_all, normalize))
+
+denormalize <- function(x,minval,maxval) {
+  x*(maxval-minval) + minval
+}
