@@ -27,9 +27,9 @@ isFindMaximum= function () {
 
 for(i in 1:10) {
   model = train_model(df_funtion_2)
-  prediction_result = data.frame(grid_normalized, result = model %>% predict(data.matrix(grid_normalized)))
+  prediction_result = data.frame(grid_normalized, output = model %>% predict(data.matrix(grid_normalized)))
   
-  ordered_prediction_result = prediction_result[order(prediction_result$result, decreasing = isFindMaximum()),]
+  ordered_prediction_result = prediction_result[order(prediction_result$output, decreasing = isFindMaximum()),]
   denormalized_prediction_result = as.data.frame(Map(denormalize, ordered_prediction_result[1:3], minvec, maxvec))
   
   best_point = denormalized_prediction_result[1,]
