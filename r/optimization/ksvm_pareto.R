@@ -98,39 +98,44 @@ r1 <- nsga2(fn, idim=3, odim=2 ,
 plot(r1)
 help("nsga2")
 
-# #ecr #not working  Ctrl+Shift+C
-# library(ecr)
-# fn2 <- function(i) {
-#   x <- i[1]
-#   y <- i[2]
-#   z <- i[3]
-#   data = data.frame(x,y,z)
-#   d_f1=fetch_test_data(data,1,3,token,base)
-#   d_f2=fetch_test_data(data,2,3,token,base)
-#   dt = data.frame(f1=d_f1$output,f2=d_f2$output)
-#   return (t(dt))
-# }
-# 
-# 
-# 
-# lower=c(-5,-5,-5)
-# upper = c(5,5,5)
-# MU = 100L
-# p=nsga2(fn, n.objectives = 2, n.dim = 3, minimize = NULL,
-#       lower = lower, upper = upper, mu = MU, lambda = MU,
-#       mutator = setup(mutPolynomial, eta = 25, p = 0.2, lower = lower, upper =
-#                         upper), recombinator = setup(recSBX, eta = 15, p = 0.7, lower = lower, upper
-#                                                      = upper), terminators = list(stopOnIters(100L)))
+#ecr #not working  Ctrl+Shift+C
+library(ecr)
+fn_ecr <- function(i) {
+  x <- i[1]
+  y <- i[2]
+  z <- i[3]
+  data = data.frame(x,y,z)
+  d_f1=fetch_test_data(data,1,3,token,base)
+  d_f2=fetch_test_data(data,2,3,token,base)
+  dt = data.frame(f1=d_f1$output,f2=d_f2$output)
+  return (t(dt))
+}
+
+
+
+lower=c(-5,-5,-5)
+upper = c(5,5,5)
+MU = 30L
+p=nsga2(fn_ecr,n.objectives = 2, n.dim = 3, minimize = NULL,
+        lower = lower, upper = upper, mu = MU, lambda = MU,
+        mutator = setup(mutPolynomial, eta = 25, p = 0.2, lower = lower, upper =
+                          upper), recombinator = setup(recSBX, eta = 15, p = 0.7, lower = lower, upper
+                                                       = upper), terminators = list(stopOnIters(100L)))
 
 
 ####ksvm + pareto
 library(mlr)
 
 #f1
-d1=d_f1[,1:3]
-data<- as.data.frame(lapply(d1,normalize))
-data['output']=d_f1[,4]
+#d1=d_f1
+#data<- as.data.frame(lapply(d1,normalize))
+#data['output']=d_f1[,4]d1=d_f1[,1:3]
+#d
 
+#d1=d_f1
+#data<- as.data.frame(lapply(d1,normalize))
+data=d_f1
+f1<-data$output
 n_samples = floor(0.8 * nrow(data))
 sequences = seq_len(nrow(data))
 sample_ids = sample(sequences, size=n_samples)
@@ -158,10 +163,14 @@ mse_cal(test$output,response$data[,3])
 plot(test$output,response$data[,3])
 #f2
 
-d2=d_f2[,1:3]
-data<- as.data.frame(lapply(d2,normalize))
-data['output']=d_f2[,4]
+# d2=d_f2[,1:3]
+# data<- as.data.frame(lapply(d2,normalize))
+# data['output']=d_f2[,4]
 
+#d2=d_f2
+#data<- as.data.frame(lapply(d2,normalize))
+data = d_f2
+f2<-data$output
 n_samples = floor(0.8 * nrow(data))
 sequences = seq_len(nrow(data))
 sample_ids = sample(sequences, size=n_samples)
@@ -213,3 +222,39 @@ r2 <- nsga2(fn2, idim=3, odim=2 ,
 
 plot(r2,xlab="f1",ylab="f2")
 
+#ecr
+fn2_ecr <- function(i) {
+  x <- i[1]
+  y <- i[2]
+  z <- i[3]
+  input_data = data.frame(x,y,z)
+  pred_f1=predict(ksvm_f1, newdata =  input_data)
+  pred_f2=predict(ksvm_f2, newdata =  input_data)
+  dt = data.frame(f1=pred_f1$data,f2=pred_f2$data)
+  s=t(dt)
+  return (s)
+}
+
+lower=c(-5,-5,-5)
+upper = c(5,5,5)
+MU = 20L
+p_pre=nsga2(fn2_ecr, n.objectives = 2, n.dim = 3, minimize = NULL,
+            lower = lower, upper = upper, mu = MU, lambda = MU,
+            mutator = setup(mutPolynomial, eta = 25, p = 0.2, lower = lower, upper =
+                              upper), recombinator = setup(recSBX, eta = 15, p = 0.7, lower = lower, upper
+                                                           = upper), terminators = list(stopOnIters(100L)))
+plot(p)
+plot(p$pareto.front,xlab="f1",ylab="f2")
+points(p_pre$pareto.front,col="red")
+p_pre$pareto.set
+plot(p_pre$pareto.front)
+p_pre$task
+
+d=data.frame(f1,f2)
+
+idxs<-which.nondominated(t(d))
+
+plot(d)
+points(d[idxs,],col = "green")
+points(p$pareto.front,col="red")
+points(p_pre$pareto.front,col="blue")
