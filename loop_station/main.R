@@ -5,12 +5,12 @@ library(ggplot2)
 library(gridExtra)
 library(smoof)
 library(mlr)
-source("case_study/api/R_Client.R")
-source("case_study/api/api_helper.R")
-source("ksvm.R")
-source("keras_ann.R")
-source("train_model.R")
-source("nsga_pareto.R")
+source("./api/R_Client.R")
+source("./api/api_helper.R")
+source("./loop_station/ksvm.R")
+source("./loop_station/keras_ann.R")
+source("./loop_station/train_model.R")
+source("./loop_station/nsga_pareto.R")
 
 base="optim.uni-muenster.de:5000/"
 token="5d5ff737873440f7989f234f821f125e"
