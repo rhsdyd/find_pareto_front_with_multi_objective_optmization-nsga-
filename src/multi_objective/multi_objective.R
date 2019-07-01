@@ -1,15 +1,15 @@
 require(ecr)
 
+source("src/api/api_client.R")
 source("src/model/benchmark.R")
 source("src/multi_objective/nsga.R")
-source("src/api/api_client.R")
 
 multi_objective_optimization <- function () {
   pareto_front_history = list()
   
   for (i in 1:8){
-    model_f1<<- benchmark_placeholder(df_function_1)
-    model_f2<<- benchmark_placeholder(df_function_2)
+    model_f1 = benchmark_placeholder(df_function_1)
+    model_f2 = benchmark_placeholder(df_function_2)
     
     pareto_front = determine_pareto_front(model_f1, model_f2)
     pareto_front_history[[i]] = pareto_front
