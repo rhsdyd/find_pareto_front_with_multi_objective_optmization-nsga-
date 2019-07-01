@@ -1,7 +1,7 @@
 source("./src/api/R_Client.R")
 source("./src/api/api_client.R")
 
-fetch_init_data = function (function_number) {
+fetch_init_data <- function (function_number) {
   grid_sequence = seq(-4.5, 4.5, 3)
   df_input = expand.grid(x = grid_sequence, y = grid_sequence, z = grid_sequence)
   
