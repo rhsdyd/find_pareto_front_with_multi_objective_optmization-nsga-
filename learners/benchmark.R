@@ -1,16 +1,60 @@
 library(mlr)
+library(keras)
 
+# returns most accurate model based on input training data
+# 20% of training data randomly picked serves as holdout for validation
+# accuracy is compared by MSE
 benchmark_models <- function(dataframe) {
-  smp_size <- floor(0.8 * nrow(dataframe))
-  train_ind <- sample(seq_len(nrow(fn2_5000)), size = smp_size)
+  smp_size <- floor(0.8 * nrow(dataframe)) # all benchmarks use same test set
+  train_ind <- sample(seq_len(nrow(dataframe)), size = smp_size)
   
   train_df <- dataframe[train_ind, ]
   test_df <- dataframe[-train_ind, ]
   
-  best_model <- benchmark_mlr(train_df, test_df)
-  return(best_model)
+  mlr_output <- benchmark_mlr(train_df, test_df)
+  keras_output <- benchmark_keras(train_df, test_df)
+  
+  if(mlr_output[[2]] < keras_output[[2]]){
+    return (mlr_output[1]) # return best mlr model
+  }
+  else {
+    return (keras_output[1]) # return best keras model
+  }
 }
 
+benchmark_keras <- function(training_df, test_df) {
+  train_x <- data.matrix(training_df[, -4])
+  train_y <- data.matrix(training_df[, 4])
+  test_x <- data.matrix(test_df[, -4])
+  test_y <- data.matrix(test_df[, 4])
+  
+  val_split = 0.2
+  activation = "relu" #fix
+  epochs = 400 #fix
+  learning_rate = 0.002 #0.1 for SGD, 0.002 for Adamax 
+  units = 1024 #fix
+  
+  model <- keras_model_sequential() 
+  model %>% # fix 2 layers
+    layer_dense(units = units, activation = activation, input_shape = c(3)) %>% 
+    layer_dense(units = units, activation = activation) %>%
+    layer_dense(units = 1)
+  
+  model %>% compile(
+    loss = 'mse',
+    optimizer = optimizer_adamax(lr=learning_rate),
+    metrics = list("mean_squared_error")
+  )
+  
+  history <- model %>% fit(
+    train_x, train_y, 
+    epochs = epochs,
+    validation_split = val_split
+  )
+
+  model_eval = model %>% evaluate(test_x, test_y)
+  return(list(model, model_eval$mean_squared_error)) # return model + mse tuple
+}
 
 # benchmark for several mlr regression learners
 # input: training data frame, test data frame
@@ -33,7 +77,7 @@ benchmark_mlr <- function(training_df, test_df) {
       makeDiscreteParam("epsilon", values = c(0.01, 0.05, 0.1, 0.2, 0.5, 1)),
       makeDiscreteParam("tol", values = c(0.0005, 0.001, 0.002, 0.005, 0.01))),
     control = ctrl, measures = list(mae, mse), show.info = TRUE)
-  
+
   # rvm crashes for unknown reasons
   
   # res_rvm = tuneParams( # 5*5*5 = 125
@@ -88,11 +132,10 @@ benchmark_mlr <- function(training_df, test_df) {
       makeDiscreteParam("cp", values = c(0.001, 0.005, 0.01, 0.05, 0.1))),
     control = ctrl, measures = list(mae, mse), show.info = TRUE)
   
-  mses = c(res_ksvm$y[1], res_rf$y[1], res_nnet$y[1], res_gausspr$y[1], res_blm$y[1], res_rpart$y[1])
+  mses = c(res_ksvm$y[2], res_rf$y[2], res_nnet$y[2], res_gausspr$y[2], res_blm$y[2], res_rpart$y[2])
   
   # create learner based on the best tuning result
-  if (min(mses) == res_ksvm$y[1]) {
-    print("KSVM wins")
+  if (min(mses) == res_ksvm$y[2]) {
     learner <- makeLearner("regr.ksvm", par.vals=list(
       C=res_ksvm$x$C,
       epsilon=res_ksvm$x$epsilon,
@@ -105,32 +148,31 @@ benchmark_mlr <- function(training_df, test_df) {
   #     # var=res_rvm$x$var,
   #     iterations=res_rvm$x$iterations))
   # }
-  else if (min(mses) == res_rf$y[1]) {
-    print("RF wins")
+  else if (min(mses) == res_rf$y[2]) {
     learner <- makeLearner("regr.randomForest", par.vals=list(
       ntree=res_rf$x$ntree,
       nodesize=res_rf$x$nodesize,
       nPerm=res_rf$x$nPerm,
       mtry=res_rf$x$mtry))
   }
-  else if (min(mses) == res_nnet$y[1]) {
+  else if (min(mses) == res_nnet$y[2]) {
     learner <- makeLearner("regr.nnet", par.vals=list(
       maxit=res_nnet$x$maxit,
       size=res_nnet$x$size))
   }
-  else if (min(mses) == res_gausspr$y[1]) {
+  else if (min(mses) == res_gausspr$y[2]) {
     learner <- makeLearner("regr.gausspr", par.vals=list(
       kernel=res_gausspr$x$kernel,
       tol=res_gausspr$x$tol,
       var=res_gausspr$x$var))
   }
-  else if (min(mses) == res_blm$y[1]) {
+  else if (min(mses) == res_blm$y[2]) {
     learner <- makeLearner("regr.blm", par.vals=list(
       meanfn=res_blm$x$meanfn,
       bprior=res_blm$x$bprior,
       R=res_blm$x$R))
   }
-  else if (min(mses) == res_rpart$y[1]) {
+  else if (min(mses) == res_rpart$y[2]) {
     learner <- makeLearner("regr.rpart", par.vals=list(
       minsplit=res_rpart$x$minsplit,
       maxdepth=res_rpart$x$maxdepth,
@@ -139,5 +181,5 @@ benchmark_mlr <- function(training_df, test_df) {
   
   task <- makeRegrTask(id='train', data=full_df, target='output')
   model <- train(learner, task)  # no subset, learn for all, model not further validated
-  return(model)
+  return(c(model, min(mses))) # return model + mse tuple
 }
