@@ -14,10 +14,15 @@ benchmark_models <- function(dataframe) {
   mlr_output <- benchmark_mlr(train_df, test_df)
   keras_output <- benchmark_keras(train_df, test_df)
   
-  if(mlr_output[[2]] < keras_output[[2]]){
+  print(paste("MLR MSE:", mlr_output[[2]] , sep=" "))
+  print(paste("Keras MSE:", keras_output[[2]] , sep=" "))
+  
+  if(mlr_output[[2]] < keras_output[[2]]){ # compare MSE
+    print("Best model overall: MLR")    
     return (mlr_output[1]) # return best mlr model
   }
   else {
+    print("Best model overall: Keras")    
     return (keras_output[1]) # return best keras model
   }
 }
@@ -105,11 +110,11 @@ benchmark_mlr <- function(training_df, test_df) {
       makeDiscreteParam("size", values = c(16, 32, 64, 128, 4, 8))),
     control = ctrl, measures = list(mae, mse), show.info = TRUE)
 
-  res_gausspr = tuneParams( # 7*6*6 = 252
+  res_gausspr = tuneParams( # 6*6*6 = 216
     "regr.gausspr", task = task,
     resampling = makeFixedHoldoutInstance(train_ind, validation_ind, size),
     par.set = makeParamSet(
-      makeDiscreteParam("kernel", values = c("rbfdot", "polydot", "vanilladot", "tanhdot", "laplacedot", "besseldot", "splinedot")),
+      makeDiscreteParam("kernel", values = c("rbfdot", "polydot", "vanilladot", "tanhdot", "laplacedot", "besseldot")),
       makeDiscreteParam("var", values = c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5)),
       makeDiscreteParam("tol", values = c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5))),
     control = ctrl, measures = list(mae, mse), show.info = TRUE)
@@ -132,15 +137,16 @@ benchmark_mlr <- function(training_df, test_df) {
       makeDiscreteParam("cp", values = c(0.001, 0.005, 0.01, 0.05, 0.1))),
     control = ctrl, measures = list(mae, mse), show.info = TRUE)
   
-  mses = c(res_ksvm$y[2], res_rf$y[2], res_nnet$y[2], res_gausspr$y[2], res_blm$y[2], res_rpart$y[2])
+  mses = c(res_ksvm$y[[2]], res_rf$y[[2]], res_nnet$y[[2]], res_gausspr$y[[2]], res_blm$y[[2]], res_rpart$y[[2]])
   
   # create learner based on the best tuning result
-  if (min(mses) == res_ksvm$y[2]) {
+  if (min(mses) == res_ksvm$y[[2]]) {
+    print("Best MLR model: KSVM")
     learner <- makeLearner("regr.ksvm", par.vals=list(
       C=res_ksvm$x$C,
+      sigma=res_ksvm$x$sigma,
       epsilon=res_ksvm$x$epsilon,
-      tol=res_ksvm$x$tol,
-      sigma=res_ksvm$x$sigma))
+      tol=res_ksvm$x$tol))
   }
   # else if (min(mses) == res_rvm$y[1]) {
   #   learner <- makeLearner("regr.rvm", par.vals=list(
@@ -149,6 +155,7 @@ benchmark_mlr <- function(training_df, test_df) {
   #     iterations=res_rvm$x$iterations))
   # }
   else if (min(mses) == res_rf$y[2]) {
+    print("Best MLR model: Random Forest")
     learner <- makeLearner("regr.randomForest", par.vals=list(
       ntree=res_rf$x$ntree,
       nodesize=res_rf$x$nodesize,
@@ -156,23 +163,27 @@ benchmark_mlr <- function(training_df, test_df) {
       mtry=res_rf$x$mtry))
   }
   else if (min(mses) == res_nnet$y[2]) {
+    print("Best MLR model: NNET")
     learner <- makeLearner("regr.nnet", par.vals=list(
       maxit=res_nnet$x$maxit,
       size=res_nnet$x$size))
   }
   else if (min(mses) == res_gausspr$y[2]) {
+    print("Best MLR model: GAUSSPR")
     learner <- makeLearner("regr.gausspr", par.vals=list(
       kernel=res_gausspr$x$kernel,
       tol=res_gausspr$x$tol,
       var=res_gausspr$x$var))
   }
   else if (min(mses) == res_blm$y[2]) {
+    print("Best MLR model: BLM")
     learner <- makeLearner("regr.blm", par.vals=list(
       meanfn=res_blm$x$meanfn,
       bprior=res_blm$x$bprior,
       R=res_blm$x$R))
   }
   else if (min(mses) == res_rpart$y[2]) {
+    print("Best MLR model: RPART")
     learner <- makeLearner("regr.rpart", par.vals=list(
       minsplit=res_rpart$x$minsplit,
       maxdepth=res_rpart$x$maxdepth,
@@ -181,5 +192,5 @@ benchmark_mlr <- function(training_df, test_df) {
   
   task <- makeRegrTask(id='train', data=full_df, target='output')
   model <- train(learner, task)  # no subset, learn for all, model not further validated
-  return(c(model, min(mses))) # return model + mse tuple
+  return(list(model, min(mses))) # return model + mse tuple
 }
