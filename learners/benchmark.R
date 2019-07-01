@@ -194,3 +194,14 @@ benchmark_mlr <- function(training_df, test_df) {
   model <- train(learner, task)  # no subset, learn for all, model not further validated
   return(list(model, min(mses))) # return model + mse tuple
 }
+
+benchmark_placeholder <- function(dataframe) {
+  learner <- makeLearner("regr.gausspr", par.vals=list(
+    kernel="laplacedot",
+    tol=0.01,
+    var=0.001))
+  
+  task <- makeRegrTask(id='train', data=dataframe, target='output')
+  model <- train(learner, task)
+  return(list(model, 9.999)) # return model + placeholder mse  
+}
