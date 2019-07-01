@@ -63,4 +63,6 @@ multi_objective_optimization <- function () {
     df_function_1<<- rbind(df_function_1, new_data_f1)
     df_function_2<<- rbind(df_function_2, new_data_f2)
   }
+  
+  return(pareto_front_history)
 }
