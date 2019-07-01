@@ -30,9 +30,9 @@ fill_data_4 = function (function_number) {
 df_function_1 = rbind(df_function_1, fill_data_boundaries(1))
 df_function_1 = rbind(df_function_1, fill_data_3(1))
 df_function_1 = rbind(df_function_1, fill_data_4(1))
-write.csv(df_function_1, 'api_function_1.csv')
+# write.csv(df_function_1, 'api_function_1.csv')
 
 df_function_2 = rbind(df_function_2, fill_data_boundaries(2))
 df_function_2 = rbind(df_function_2, fill_data_3(2))
 df_function_2 = rbind(df_function_2, fill_data_4(2))
-write.csv(df_function_2, 'api_function_2.csv')
+# write.csv(df_function_2, 'api_function_2.csv')
