@@ -1,3 +1,5 @@
+require(ecr)
+
 source("src/model/benchmark.R")
 source("src/multi_objective/nsga.R")
 source("src/api/api_client.R")
