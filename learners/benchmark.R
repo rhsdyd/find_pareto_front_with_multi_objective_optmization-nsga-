@@ -203,5 +203,5 @@ benchmark_placeholder <- function(dataframe) {
   
   task <- makeRegrTask(id='train', data=dataframe, target='output')
   model <- train(learner, task)
-  return(list(model, 9.999)) # return model + placeholder mse  
+  return(model)  
 }
