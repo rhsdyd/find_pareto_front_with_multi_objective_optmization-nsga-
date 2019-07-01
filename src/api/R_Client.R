@@ -1,6 +1,6 @@
 if (!require("httr")) library(httr)
 if (!require("jsonlite")) library(jsonlite)
-apirequest = function(input, func, endpoint, token, base){
+apirequest <- function(input, func, endpoint, token, base){
   # if(endpoint=="api"){
   #   return("Access denied! :)")
   # }

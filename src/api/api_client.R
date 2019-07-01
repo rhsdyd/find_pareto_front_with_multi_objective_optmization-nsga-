@@ -1,12 +1,11 @@
 source("src/api/R_Client.R")
 
-api = "api-test3D"
-
-fetch_data = function(df_input, fun) {
+fetch_data <- function(df_input, fun) {
   # split into chunks of 50 rows
   splitted = split(df_input, (as.numeric(rownames(df_input)) - 1) %/% 50)
   output = vector(mode="numeric", length=0)
   
+  api = "api-test3D"
   base = "optim.uni-muenster.de:5000/"
   token = "5d5ff737873440f7989f234f821f125e"
 
