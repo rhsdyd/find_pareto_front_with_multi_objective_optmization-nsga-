@@ -1,7 +1,7 @@
 require(ecr)
 
 determine_nsga_pareto_fronts <- function(model_f1, model_f2) {
-  mu = 20L
+  mu = 10L
   iter = 50L
   
   lower = c(-5, -5, -5)
@@ -14,7 +14,7 @@ determine_nsga_pareto_fronts <- function(model_f1, model_f2) {
     
     decision_space = data.frame(x, y, z)
     pred_f1 = tryCatch(predict(model_f1, newdata = decision_space), error = function(e) model_f1 %>% predict(data.matrix(decision_space[,1:3])))
-    pred_f2 = tryCatch(predict(model_f2, newdata = decision_space), error = function(e) model_f2%>% predict(data.matrix(decision_space[,1:3])))
+    pred_f2 = tryCatch(predict(model_f2, newdata = decision_space), error = function(e) model_f2 %>% predict(data.matrix(decision_space[,1:3])))
     
     objective_space = data.frame(f1 = pred_f1, f2 = pred_f2)
     return (t(objective_space))
