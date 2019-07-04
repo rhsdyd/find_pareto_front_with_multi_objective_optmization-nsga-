@@ -15,8 +15,8 @@ multi_objective_optimization <- function (df_1, df_2, store_data_frame_each_iter
     pareto_front_history[[i]] = pareto_front
     
     new_pareto_set = pareto_front[1:3]
-    new_data_f1 = fetch_data(new_pareto_set, 1)
-    new_data_f2 = fetch_data(new_pareto_set, 2)
+    new_data_f1 = fetch_non_redundant_data(df_1, new_pareto_set, 1)
+    new_data_f2 = fetch_non_redundant_data(df_2, new_pareto_set, 2)
 
     df_1 = rbind(df_1, new_data_f1)
     df_2 = rbind(df_2, new_data_f2)

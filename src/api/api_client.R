@@ -1,4 +1,5 @@
 source("src/api/R_Client.R")
+source("src/utils/redundance_filter.R")
 
 fetch_data <- function(df_input, fun) {
   # split into chunks of 50 rows
@@ -16,4 +17,11 @@ fetch_data <- function(df_input, fun) {
 
   df_input["output"] = output
   return(df_input)
+}
+
+fetch_non_redundant_data <- function(df, df_input, fun) {
+  df_input = within_df_filter_redundancies(df_input)
+  df_input = filter_redundancies_for_df(df, df_input)
+  
+  return(fetch_data(df_input, fun))
 }
