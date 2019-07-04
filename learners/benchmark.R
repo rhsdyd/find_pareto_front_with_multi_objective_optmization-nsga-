@@ -63,9 +63,9 @@ benchmark_keras <- function(training_df, test_df) {
   test_x <- data.matrix(test_df[, -4])
   test_y <- data.matrix(test_df[, 4])
   
-  learning_rates = list(0.001, 0.002, 0.005, 0.01, 0.02)
-  units <- list(128, 512, 1024)
-  optimizers <- list(optimizer_adagrad, optimizer_adam)
+  learning_rates = list(0.001, 0.002, 0.005, 0.01, 0.02, 0.05)
+  units <- list(128, 256, 512, 1024)
+  optimizers <- list(optimizer_adagrad, optimizer_adam, optimizer_rmsprop, optimizer_adamax)
 
   hyperparam_grid <- expand.grid(lr=learning_rates, units=units, opti=optimizers)
   min_mse = 99999.0
