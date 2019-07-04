@@ -25,7 +25,8 @@ multi_objective_optimization <- function (df_1, df_2) {
     write.csv(df_2, paste('data/df_2_', i, '.csv', sep=""))
   }
   
-  return(pareto_front_history)
+  result = list('df_1' = df_1, 'df_2' = df_2, 'pareto_front_history' = pareto_front_history)
+  return(result)
 }
 
 determine_pareto_front <- function (model_f1, model_f2) {
