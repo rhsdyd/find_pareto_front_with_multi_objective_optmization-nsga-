@@ -4,7 +4,7 @@ source("src/api/api_client.R")
 source("src/model/benchmark.R")
 source("src/multi_objective/nsga.R")
 
-multi_objective_optimization <- function (df_1, df_2) {
+multi_objective_optimization <- function (df_1, df_2, store_data_frame_each_iteration = FALSE) {
   pareto_front_history = list()
   
   for (i in 1:8) {
@@ -21,8 +21,10 @@ multi_objective_optimization <- function (df_1, df_2) {
     df_1 = rbind(df_1, new_data_f1)
     df_2 = rbind(df_2, new_data_f2)
     
-    write.csv(df_1, paste('data/df_1_', i, '.csv', sep=""))
-    write.csv(df_2, paste('data/df_2_', i, '.csv', sep=""))
+    if(store_data_frame_each_iteration == TRUE) {
+      write.csv(df_1, paste('data/df_1_', i, '.csv', sep=""))
+      write.csv(df_2, paste('data/df_2_', i, '.csv', sep=""))
+    }
   }
   
   result = list('df_1' = df_1, 'df_2' = df_2, 'pareto_front_history' = pareto_front_history)
