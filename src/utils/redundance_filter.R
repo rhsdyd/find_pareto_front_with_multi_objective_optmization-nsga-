@@ -14,7 +14,7 @@ filter_redundancies_for_df <- function (df, df_input) {
   return(df_input[apply(df_input, 1, redundant_predicate, df),])
 }
 
-within_df_filter_redundancies <- function (df_input) {
+filter_redundancies_within_df <- function (df_input) {
   logical_vector = c()
   
   for(i in 1:(length(df_input[,1]))) {

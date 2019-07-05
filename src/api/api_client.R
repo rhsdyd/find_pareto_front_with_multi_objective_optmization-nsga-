@@ -20,7 +20,7 @@ fetch_data <- function(df_input, fun) {
 }
 
 fetch_non_redundant_data <- function(df, df_input, fun) {
-  df_input = within_df_filter_redundancies(df_input)
+  df_input = filter_redundancies_within_df(df_input)
   df_input = filter_redundancies_for_df(df, df_input)
   
   return(fetch_data(df_input, fun))
