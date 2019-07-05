@@ -5,14 +5,17 @@ source("src/model/benchmark.R")
 source("src/multi_objective/nsga.R")
 
 multi_objective_optimization <- function (df_1, df_2, store_data_frame_each_iteration = FALSE) {
-  pareto_front_history = list()
+  history_pareto_front_models = list()
+  history_pareto_front_data = list()
   
-  for (i in 1:8) {
-    model_f1 = benchmark_placeholder(df_1)
-    model_f2 = benchmark_placeholder(df_2)
+  for (i in 1:30) {
+    
+    model_f1 = benchmark_placeholder(df_1)[[1]]
+    model_f2 = benchmark_placeholder(df_2)[[1]]
     
     pareto_front = determine_pareto_front(model_f1, model_f2)
-    pareto_front_history[[i]] = pareto_front
+    
+    history_pareto_front_models[[i]] = pareto_front
     
     new_pareto_set = pareto_front[1:3]
     new_data_f1 = fetch_non_redundant_data(df_1, new_pareto_set, 1)
@@ -25,10 +28,17 @@ multi_objective_optimization <- function (df_1, df_2, store_data_frame_each_iter
       write.csv(df_1, paste('data/df_1_', i, '.csv', sep=""))
       write.csv(df_2, paste('data/df_2_', i, '.csv', sep=""))
     }
+    
+    history_pareto_front_data[[i]] = get_non_dominated_sortings(df_1, df_2)
   }
   
-  result = list('df_1' = df_1, 'df_2' = df_2, 'pareto_front_history' = pareto_front_history)
+  result = list('df_1' = df_1, 'df_2' = df_2, 'history_pareto_front_models' = history_pareto_front_models, 'history_pareto_front_data' = history_pareto_front_data)
   return(result)
+}
+
+get_non_dominated_sortings = function (df_1, df_2) {
+  outputs = data.frame(x1 = df_1[,4], x2 = df_2[,4])
+  return(outputs[which.nondominated(t(outputs)),])
 }
 
 determine_pareto_front <- function (model_f1, model_f2) {
