@@ -31,12 +31,8 @@ determine_nsga_pareto_fronts <- function(model_f1, model_f2) {
     result = matrix(ncol = 2, nrow = 0)
     colnames(result) = c('mutator', 'recombinator')
     
-    mutator = setup(mutPolynomial, eta = 25, p = 0.2, lower = lower, upper = upper)
-    recombinator = setup(recSBX, eta = 15, p = 0.7, lower = lower, upper = upper)
-    result = rbind(result, list(mutator, recombinator))
-    
-    mutator = setup(mutGauss, p = 0.2, sdev = 0.05, lower = lower, upper = upper)
-    recombinator = setup(recSBX, eta = 15, p = 0.7, lower = lower, upper = upper)
+    mutator = setup(mutPolynomial, eta = 20, p = 0.5, lower = lower, upper = upper)
+    recombinator = setup(recSBX, eta = 5, p = 1, lower = lower, upper = upper)
     result = rbind(result, list(mutator, recombinator))
     
     return(result)
