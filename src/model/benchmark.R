@@ -231,3 +231,4 @@ benchmark_placeholder <- function(dataframe) {
   sampled <- resample(learner, task, rdesc)
 
   return(list(model, sampled$aggr[[1]])) # return model plus MSE
+}
