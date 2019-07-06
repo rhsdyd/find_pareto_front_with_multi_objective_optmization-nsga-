@@ -2,7 +2,7 @@ setwd("case_study/")
 
 source("src/multi_objective/multi_objective.R")
 
-multi_objective_result = multi_objective_optimization(df_function_1, df_function_2, store_data_frame_each_iteration = FALSE)
+multi_objective_result = multi_objective_optimization(df_function_1, df_function_2,100, store_data_frame_each_iteration = FALSE)
 
 multi_objective_result$df_1
 multi_objective_result$df_2

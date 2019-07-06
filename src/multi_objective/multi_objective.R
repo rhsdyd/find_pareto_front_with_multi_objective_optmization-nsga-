@@ -4,14 +4,22 @@ source("src/api/api_client.R")
 source("src/model/benchmark.R")
 source("src/multi_objective/nsga.R")
 
-multi_objective_optimization <- function (df_1, df_2, store_data_frame_each_iteration = FALSE) {
+multi_objective_optimization <- function (df_1, df_2,loop_iter, store_data_frame_each_iteration = FALSE) {
   history_pareto_front_models = list()
   history_pareto_front_data = list()
+  learning_model_f1 = list()
+  learning_model_f2 = list()
+  data_to_train_f1 = list()
+  data_to_train_f2 = list()
   
   for (i in 1:30) {
     
+    data_to_train_f1[[i]] = df_1
+    data_to_train_f2[[i]] = df_2
     model_f1 = benchmark_placeholder(df_1)[[1]]
     model_f2 = benchmark_placeholder(df_2)[[1]]
+    learning_model_f1[[i]] = model_f1
+    learning_model_f2[[i]] = model_f2
     
     pareto_front = determine_pareto_front(model_f1, model_f2)
     
@@ -32,7 +40,9 @@ multi_objective_optimization <- function (df_1, df_2, store_data_frame_each_iter
     history_pareto_front_data[[i]] = get_non_dominated_sortings(df_1, df_2)
   }
   
-  result = list('df_1' = df_1, 'df_2' = df_2, 'history_pareto_front_models' = history_pareto_front_models, 'history_pareto_front_data' = history_pareto_front_data)
+  result = list('data_to_train_f1' = data_to_train_f1, 'data_to_train_f2' = data_to_train_f2, 
+                'learning_model_f1' = learning_model_f1, 'learning_model_f2' = learning_model_f1,
+                'history_pareto_front_models' = history_pareto_front_models, 'history_pareto_front_data' = history_pareto_front_data)
   return(result)
 }
 
