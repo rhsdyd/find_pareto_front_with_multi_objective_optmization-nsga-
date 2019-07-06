@@ -1,10 +1,10 @@
 ### initi 64 iter 180
 
-multi_objective_result1_2 = multi_objective_optimization(df4_function_1, df4_function_2, 3, store_data_frame_each_iteration = FALSE)
+multi_objective_result1_2 = multi_objective_optimization(df4_function_1, df4_function_2, 180, store_data_frame_each_iteration = FALSE)
 
 track1_2 = tracking(multi_objective_result1_2)
 
-
+multi_objective_result1_2$learning_model_f1
 
 
 ###  inital 125 iter 150
@@ -20,6 +20,7 @@ track2_2 = tracking(multi_objective_result2_2)
 multi_objective_result3_2 = multi_objective_optimization(df6_function_1, df6_function_2, 120, store_data_frame_each_iteration = FALSE)
 
 track3_2 = tracking(multi_objective_result3_2)
+
 
 
 ### inital 343 iter 90
