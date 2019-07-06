@@ -12,7 +12,7 @@ multi_objective_optimization <- function (df_1, df_2,loop_iter, store_data_frame
   data_to_train_f1 = list()
   data_to_train_f2 = list()
   
-  for (i in 1:30) {
+  for (i in 1:loop_iter) {
     
     data_to_train_f1[[i]] = df_1
     data_to_train_f2[[i]] = df_2
