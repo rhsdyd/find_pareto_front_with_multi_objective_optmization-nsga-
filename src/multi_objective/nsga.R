@@ -1,7 +1,7 @@
 require(ecr)
 
 determine_nsga_pareto_fronts <- function(model_f1, model_f2) {
-  mu = 10L
+  mu = 25L
   iter = 50L
   
   lower = c(-5, -5, -5)
