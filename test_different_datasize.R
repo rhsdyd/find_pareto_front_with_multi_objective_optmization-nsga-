@@ -87,7 +87,7 @@ track6 = tracking(multi_objective_result6)
 
 #visual
 #correlation
-ggcorrplot(cor(track6), type = "lower",
+ggcorrplot(cor(track1), type = "lower",
            lab = TRUE)
 
 
@@ -98,7 +98,11 @@ points(idx,track1$idg_real_model ,ty='l',col='red')
 points(idx,track1$idg_truth_real,ty='l',col='green')
 legend(145, 480, legend=c("idg_truth_model", "idg_truth_real", "idg_real_model"),
        col=c("black","red", "green"), lty=1, cex=0.5)
-true_front_line + geom_point(data=multi_objective_result1$history_pareto_front_models[[179]],aes(x= y1, y= y2), colour = "green") 
+true_front_line + geom_point(data=multi_objective_result1$history_pareto_front_models[[1]],aes(x= y1, y= y2), colour = "green") 
+track1
+
+
+
 
 track2
 idx = c(1:nrow(track2))
