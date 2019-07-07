@@ -47,7 +47,8 @@ benchmark_keras_single <- function(
   history <- model %>% fit(
     train_x, train_y,
     epochs = 400,
-    validation_split = 0.2
+    validation_split = 0,
+    verbose = 0
   )
 
   model_eval <- model %>% evaluate(test_x, test_y)
@@ -68,14 +69,14 @@ benchmark_keras <- function(training_df, test_df) {
   optimizers <- list(optimizer_adagrad, optimizer_adam, optimizer_rmsprop, optimizer_adamax)
 
   hyperparam_grid <- expand.grid(lr=learning_rates, units=units, opti=optimizers)
-  min_mse = 99999.0
+  min_mse = 99999999999999999999.0
 
   for (row in 1:nrow(hyperparam_grid)) {
     keras_output <- benchmark_keras_single(
       train_x, train_y, test_x, test_y,
       hyperparam_grid[[row, "lr"]], hyperparam_grid[[row, "units"]], hyperparam_grid[[row, "opti"]])
 
-    if (keras_output[[2]] < min_mse){
+    if (keras_output[[2]] < min_mse) {
       min_mse <- keras_output[[2]]
       best_model <- keras_output[[1]]
       # write row number to csv to check hyperparams later
@@ -171,7 +172,7 @@ benchmark_mlr <- function(training_df, test_df) {
       C=res_ksvm$x$C,
       sigma=res_ksvm$x$sigma,
       epsilon=res_ksvm$x$epsilon,
-      tol=res_ksvm$x$tol))
+      tol=res_ksvm$x$tol), config = list(show.learner.output = FALSE))
   }
   # else if (min(mses) == res_rvm$y[1]) {
   #   learner <- makeLearner("regr.rvm", par.vals=list(
@@ -185,34 +186,34 @@ benchmark_mlr <- function(training_df, test_df) {
       ntree=res_rf$x$ntree,
       nodesize=res_rf$x$nodesize,
       nPerm=res_rf$x$nPerm,
-      mtry=res_rf$x$mtry))
+      mtry=res_rf$x$mtry), config = list(show.learner.output = FALSE))
   }
   else if (min(mses) == res_nnet$y[1]) {
     print("Best MLR model: NNET")
     learner <- makeLearner("regr.nnet", par.vals=list(
       maxit=res_nnet$x$maxit,
-      size=res_nnet$x$size))
+      size=res_nnet$x$size), config = list(show.learner.output = FALSE))
   }
   else if (min(mses) == res_gausspr$y[1]) {
     print("Best MLR model: GAUSSPR")
     learner <- makeLearner("regr.gausspr", par.vals=list(
       kernel=res_gausspr$x$kernel,
       tol=res_gausspr$x$tol,
-      var=res_gausspr$x$var))
+      var=res_gausspr$x$var), config = list(show.learner.output = FALSE))
   }
   else if (min(mses) == res_blm$y[1]) {
     print("Best MLR model: BLM")
     learner <- makeLearner("regr.blm", par.vals=list(
       meanfn=res_blm$x$meanfn,
       bprior=res_blm$x$bprior,
-      R=res_blm$x$R))
+      R=res_blm$x$R), config = list(show.learner.output = FALSE))
   }
   else if (min(mses) == res_rpart$y[1]) {
     print("Best MLR model: RPART")
     learner <- makeLearner("regr.rpart", par.vals=list(
       minsplit=res_rpart$x$minsplit,
       maxdepth=res_rpart$x$maxdepth,
-      cp=res_rpart$x$cp))
+      cp=res_rpart$x$cp), config = list(show.learner.output = FALSE))
   }
   
   task <- makeRegrTask(id='train', data=full_df, target='output')
@@ -221,14 +222,47 @@ benchmark_mlr <- function(training_df, test_df) {
 }
 
 #fast model built from benchmark results
-benchmark_placeholder <- function(dataframe) {
-  learner <- makeLearner("regr.gausspr", par.vals=list(
-    kernel="laplacedot", tol=0.01, var=0.001))
+train_model_f1 <- function(dataframe) {
+  learner <- makeLearner("regr.ksvm", par.vals=list(
+    C=2.5, sigma=1, epsilon=0.01, tol=0.0005), config = list(show.learner.output = FALSE))
 
   rdesc = makeResampleDesc("CV", iters = 5)
   task <- makeRegrTask(id='train', data=dataframe, target='output')
   model <- train(learner, task)
   sampled <- resample(learner, task, rdesc)
+  
+  mse = sampled$aggr[[1]]
+  write(mse, file="data/mse/mse_ksvm", append=TRUE)
 
-  return(list(model, sampled$aggr[[1]])) # return model plus MSE
+  return(model)
+}
+
+train_model_f2 <- function(dataframe) {
+  train_x <- data.matrix(df_function_1[, -4])
+  train_y <- data.matrix(df_function_1[, 4])
+  
+  model <- keras_model_sequential()
+  
+  model %>%
+    layer_dense(units = 128, activation = "relu", input_shape = c(3)) %>%
+    layer_dense(units = 128, activation = "relu") %>%
+    layer_dense(units = 1)
+  
+  model %>% compile(
+    loss = 'mse',
+    optimizer = optimizer_adamax(lr=0.05),
+    metrics = list("mean_squared_error")
+  )
+  
+  history <- model %>% fit(
+    train_x, train_y,
+    epochs = 400,
+    validation_split = 0.2,
+    verbose = 0
+  )
+  
+  mse = history$metrics$val_loss[length(history$metrics$val_loss)]
+  write(mse, file="data/mse/mse_keras", append=TRUE)
+  
+  return(model)
 }
