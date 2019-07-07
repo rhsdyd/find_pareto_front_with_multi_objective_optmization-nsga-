@@ -13,7 +13,8 @@ multi_objective_optimization <- function (df_1, df_2,loop_iter, store_data_frame
   data_to_train_f2 = list()
   
   for (i in 1:loop_iter) {
-    print(paste(i, loop_iter, sep = "/"))
+    print(paste('Iteration: ',i, '/', loop_iter))
+    print(paste('current length: ', nrow(df_1)))
     
     data_to_train_f1[[i]] = df_1
     data_to_train_f2[[i]] = df_2
@@ -41,8 +42,8 @@ multi_objective_optimization <- function (df_1, df_2,loop_iter, store_data_frame
     history_pareto_front_data[[i]] = get_non_dominated_sortings(df_1, df_2)
   }
   
-  result = list('last_data_df1' = df_1, 'last_data_f2' = df_2, 'data_to_train_f1' = data_to_train_f1, 'data_to_train_f2' = data_to_train_f2, 
-                'learning_model_f1' = learning_model_f1, 'learning_model_f2' = learning_model_f1,
+  result = list('last_data_df1' = df_1, 'last_data_df2' = df_2, 'data_to_train_f1' = data_to_train_f1, 'data_to_train_f2' = data_to_train_f2, 
+                'learning_model_f1' = learning_model_f1, 'learning_model_f2' = learning_model_f2,
                 'history_pareto_front_models' = history_pareto_front_models, 'history_pareto_front_data' = history_pareto_front_data)
   return(result)
 }
