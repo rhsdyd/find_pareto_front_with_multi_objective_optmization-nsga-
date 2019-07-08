@@ -11,6 +11,7 @@ visualize_3D = function (df, from = 1, to = nrow(df), main = "") {
   )
 }
 
+
 par(mfrow = c(1,2))
 visualize_3D(df_function_1, 1, 407, "Initial Dataset Function 1")
 visualize_3D(df_function_2, 1, 407, "Initial Dataset Function 2")
