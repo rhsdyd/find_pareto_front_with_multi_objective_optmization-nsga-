@@ -1,4 +1,4 @@
-max_distance = 0.05
+max_distance = 0.1
 
 calc_euc_dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
   
