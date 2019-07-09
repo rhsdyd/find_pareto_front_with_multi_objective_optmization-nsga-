@@ -16,17 +16,10 @@ multi_objective_optimization <- function (df_1, df_2,loop_iter, store_data_frame
     print(paste('Iteration: ',i, '/', loop_iter))
     print(paste('current length: ', nrow(df_1)))
     
-    data_to_train_f1[[i]] = df_1
-    data_to_train_f2[[i]] = df_2
-    
     model_f1 = train_model_f1(df_1)
     model_f2 = train_model_f2(df_2)
-    learning_model_f1[[i]] = model_f1
-    learning_model_f2[[i]] = model_f2
     
     pareto_front = determine_pareto_front(model_f1, model_f2)
-    
-    history_pareto_front_models[[i]] = pareto_front
     
     new_pareto_set = pareto_front[1:3]
     new_data_f1 = fetch_non_redundant_data(df_1, new_pareto_set, 1)
@@ -36,16 +29,14 @@ multi_objective_optimization <- function (df_1, df_2,loop_iter, store_data_frame
     df_2 = rbind(df_2, new_data_f2)
     
     pareto_real = get_non_dominated_sortings(df_1, df_2)
+    
+    # track iteration
+    data_to_train_f1[[i]] = df_1
+    data_to_train_f2[[i]] = df_2
+    learning_model_f1[[i]] = model_f1
+    learning_model_f2[[i]] = model_f2
+    history_pareto_front_models[[i]] = pareto_front
     history_pareto_front_data[[i]] = pareto_real
-    
-    if (store_data_frame_each_iteration == TRUE) {
-      write.csv(pareto_real, paste('data/pareto/pareto_real_', i, '.csv', sep=""), row.names = FALSE)
-      write.csv(pareto_front, paste('data/pareto/pareto_front_', i, '.csv', sep=""), row.names = FALSE)
-      
-      write.csv(df_1, paste('data/df_1_', i, '.csv', sep=""), row.names = FALSE)
-      write.csv(df_2, paste('data/df_2_', i, '.csv', sep=""), row.names = FALSE)
-    }
-    
   }
   
   result = list('last_data_df1' = df_1, 'last_data_df2' = df_2, 'data_to_train_f1' = data_to_train_f1, 'data_to_train_f2' = data_to_train_f2, 
