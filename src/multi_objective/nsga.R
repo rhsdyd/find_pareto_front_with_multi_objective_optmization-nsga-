@@ -2,7 +2,7 @@ require(ecr)
 
 determine_nsga_pareto_fronts <- function(model_f1, model_f2) {
   mu = 25L
-  iter = 50L
+  iter = 15L
   
   lower = c(-5, -5, -5)
   upper = c(5, 5, 5)
@@ -19,7 +19,6 @@ determine_nsga_pareto_fronts <- function(model_f1, model_f2) {
     objective_space = data.frame(f1 = pred_f1, f2 = pred_f2)
     return (t(objective_space))
   }
-  
   do_nsga_for_hyperparam_set <- function (hyperparam_set) {
     nsga2(fitness_function, n.objectives = 2, n.dim = 3, lower = lower, upper = upper, mu = mu, lambda = mu,
           mutator = hyperparam_set$mutator,
