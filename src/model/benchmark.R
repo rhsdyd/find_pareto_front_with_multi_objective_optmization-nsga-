@@ -109,15 +109,6 @@ benchmark_mlr <- function(training_df, test_df) {
       makeDiscreteParam("tol", values = c(0.0005, 0.001, 0.002, 0.005, 0.01))),
     control = ctrl, measures = list(mse), show.info = TRUE)
 
-  # rvm crashes for unknown reasons
-
-  # res_rvm = tuneParams( # 5*5*5 = 125
-  #   "regr.rvm", task = task,
-  #   resampling = makeFixedHoldoutInstance(train_ind, validation_ind, size),
-  #   par.set = makeParamSet(
-  #     makeDiscreteParam("iterations", values = c(50, 100, 200, 500, 1000))),
-  #   control = ctrl, measures = list(mse), show.info = TRUE)
-
   res_rf = tuneParams( # 8*5*5*3 = 600
     "regr.randomForest", task = task,
     resampling = makeFixedHoldoutInstance(train_ind, validation_ind, size),
@@ -145,15 +136,6 @@ benchmark_mlr <- function(training_df, test_df) {
       makeDiscreteParam("tol", values = c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5))),
     control = ctrl, measures = list(mse), show.info = TRUE)
 
-  res_blm = tuneParams( # 2*6*5 = 60
-    "regr.blm", task = task,
-    resampling = makeFixedHoldoutInstance(train_ind, validation_ind, size),
-    par.set = makeParamSet(
-      makeDiscreteParam("meanfn", values = c("linear", "constant")),
-      makeDiscreteParam("bprior", values = c("bflat", "b0", "bmle", "bmzt", "b0not", "bmznot")),
-      makeDiscreteParam("R", values = c(1, 2, 3, 4, 5))),
-    control = ctrl, measures = list(mse), show.info = TRUE)
-
   res_rpart = tuneParams( # 5*5*5 = 125
     "regr.rpart", task = task,
     resampling = makeFixedHoldoutInstance(train_ind, validation_ind, size),
@@ -174,12 +156,6 @@ benchmark_mlr <- function(training_df, test_df) {
       epsilon=res_ksvm$x$epsilon,
       tol=res_ksvm$x$tol), config = list(show.learner.output = FALSE))
   }
-  # else if (min(mses) == res_rvm$y[1]) {
-  #   learner <- makeLearner("regr.rvm", par.vals=list(
-  #     minmaxdiff=res_rvm$x$minmaxdiff,
-  #     # var=res_rvm$x$var,
-  #     iterations=res_rvm$x$iterations))
-  # }
   else if (min(mses) == res_rf$y[1]) {
     print("Best MLR model: Random Forest")
     learner <- makeLearner("regr.randomForest", par.vals=list(
@@ -200,13 +176,6 @@ benchmark_mlr <- function(training_df, test_df) {
       kernel=res_gausspr$x$kernel,
       tol=res_gausspr$x$tol,
       var=res_gausspr$x$var), config = list(show.learner.output = FALSE))
-  }
-  else if (min(mses) == res_blm$y[1]) {
-    print("Best MLR model: BLM")
-    learner <- makeLearner("regr.blm", par.vals=list(
-      meanfn=res_blm$x$meanfn,
-      bprior=res_blm$x$bprior,
-      R=res_blm$x$R), config = list(show.learner.output = FALSE))
   }
   else if (min(mses) == res_rpart$y[1]) {
     print("Best MLR model: RPART")
