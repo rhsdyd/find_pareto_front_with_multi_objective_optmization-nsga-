@@ -227,19 +227,19 @@ train_model_f1 <- function(dataframe) {
     C=2.5, sigma=1, epsilon=0.01, tol=0.0005), config = list(show.learner.output = FALSE))
 
   rdesc = makeResampleDesc("CV", iters = 5)
-  task <- makeRegrTask(id='train', data=dataframe, target='output')
+  task <- makeRegrTask(id = 'train', data = as.matrix(dataframe), target = 'output')
   model <- train(learner, task)
   sampled <- resample(learner, task, rdesc)
   
-  mse = sampled$aggr[[1]]
-  write(mse, file="data/mse/mse_ksvm", append=TRUE)
+  # mse = sampled$aggr[[1]]
+  # write(mse, file="data/mse/mse_ksvm", append=TRUE)
 
   return(model)
 }
 
 train_model_f2 <- function(dataframe) {
-  train_x <- data.matrix(df_function_1[, -4])
-  train_y <- data.matrix(df_function_1[, 4])
+  train_x <- data.matrix(dataframe[, -4])
+  train_y <- data.matrix(dataframe[, 4])
   
   model <- keras_model_sequential()
   
@@ -263,6 +263,47 @@ train_model_f2 <- function(dataframe) {
   
   mse = history$metrics$val_loss[length(history$metrics$val_loss)]
   write(mse, file="data/mse/mse_keras", append=TRUE)
+  print(paste('MSE Keras:', mse))
+  
+  return(model)
+}
+
+train_model_f1_final <- function(dataframe) {
+  train_x <- data.matrix(dataframe[, -4])
+  train_y <- data.matrix(dataframe[, 4])
+  
+  model <- keras_model_sequential()
+  
+  model %>%
+    layer_dense(units = 1024, activation = "relu", input_shape = c(3)) %>%
+    layer_dense(units = 1024, activation = "relu") %>%
+    layer_dense(units = 1)
+  
+  model %>% compile(
+    loss = 'mse',
+    optimizer = optimizer_rmsprop(lr=0.05),
+    metrics = list("mean_squared_error")
+  )
+  
+  history <- model %>% fit(
+    train_x, train_y,
+    epochs = 400,
+    validation_split = 0,
+    verbose = 2
+  )
+  
+  return(model)
+}
+
+train_model_f2_final = function (dataframe) {
+  learner <- makeLearner("regr.randomForest", par.vals=list(
+    ntree = 100, nodesize = 5, nPerm = 2, mtry = 3
+  ), config = list(show.learner.output = FALSE))
+  
+  rdesc = makeResampleDesc("CV", iters = 5)
+  task <- makeRegrTask(id = 'train', data = dataframe, target = 'output')
+  model <- train(learner, task)
+  sampled <- resample(learner, task, rdesc)
   
   return(model)
 }
